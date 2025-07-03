@@ -1,0 +1,71 @@
+const config = {
+    buttonSelector: '#daiy_sign > div > div > div > div.col.col-9 > div.flex > span > button',
+    preventNewTab: true,
+    balanceCheckFrequency: 500,
+    tokenLocalStorageKey: 'token'
+};
+
+
+let clickCount = 0;
+let isAutoClickerActive = true;
+
+
+const stopClicker = () => { isAutoClickerActive = false; };
+
+
+const checkBalance = () => {
+    const token = localStorage.getItem(config.tokenLocalStorageKey);
+    if (!token) { return; }
+    fetch('https://launch.openverse.network/api/user', {
+        headers: { 'Authorization': Bearer ${ token } }
+  })
+  .then(response => response.json())
+    .then(data => {
+        if (data && data.point !== undefined) {
+            console.log(% c💰 Current Points: ${ data.point }, 'font-weight: bold; color: #3498db;');
+        }
+    })
+    .catch(err => { });
+};
+
+
+const performClickLoop = () => {
+    if (!isAutoClickerActive) {
+        console.log('%c👋 Loop stopped by user.', 'color: #f39c12;');
+        return;
+    }
+
+    const button = document.querySelector(config.buttonSelector);
+    if (button) {
+        if (config.preventNewTab) {
+            const parentLink = button.closest('a');
+            if (parentLink && parentLink.target === '_blank') {
+                parentLink.removeAttribute('target');
+            }
+        }
+
+        button.click();
+        clickCount++;
+
+        if (clickCount % 100 === 0) {
+            console.log(% c✅ Clicks executed: ${ clickCount }, 'color: #2ecc71;');
+        }
+
+        if (clickCount % config.balanceCheckFrequency === 0) {
+            console.log(% c🔔 Reached ${ clickCount } clicks.Checking balance..., 'font-weight: bold; color: #3498db;');
+            setTimeout(checkBalance, 1000);
+        }
+
+
+        setTimeout(performClickLoop, 0);
+
+    } else {
+        console.log(% c🛑 Button not found.Final click count: ${ clickCount }, 'font-weight: bold; color: #e74c3c;');
+    }
+};
+
+
+console.log('%c☢️ DEFINITIVE FASTEST SCRIPT ACTIVATED. MAXIMUM RISK. ☢️', 'font-size: 20px; font-weight: bold; color: red;');
+checkBalance();
+performClickLoop();
+console.log('%cTo stop, type "stopClicker()" and press Enter.', 'color: #f39c12;');
